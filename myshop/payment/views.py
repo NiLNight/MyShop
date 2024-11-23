@@ -15,15 +15,12 @@ def payment_process(request):
     order = get_object_or_404(Order, id=order_id)
     if request.method == 'POST':
         success_url = request.build_absolute_uri(
-            reverse('payment:success')
-        )
+            reverse('payment:completed'))
         cancel_url = request.build_absolute_uri(
-            reverse('payment:canceled')
-        )
-        # данные сеанса оформления платежа Stripe
+            reverse('payment:canceled'))
+        # данные сеанса Stripe оформления платежа
         session_data = {
             'mode': 'payment',
-            'client_reference_id': order.id,
             'success_url': success_url,
             'cancel_url': cancel_url,
             'line_items': []
@@ -43,8 +40,8 @@ def payment_process(request):
             })
         # создать сеанс оформления платежа Stripe
         session = stripe.checkout.Session.create(**session_data)
-        # перенаправить к платежной форме Stripe
-        return redirect(session.url, code=302)
+        # перенаправит к платежной форме Stripe
+        return redirect(session.url, code=303)
     else:
         return render(request, 'payment/process.html', locals())
 
